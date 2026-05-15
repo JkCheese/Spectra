@@ -47,7 +47,7 @@ struct Board {
     Bitboard pieces[NUM_PLAYERS][NUM_PIECE_TYPES];
 
     // Mailbox arrays — which pieces are whose and where
-    Piece board[256];
+    Piece mailbox[256];
     Player owner[256];
 
     // Occupancy bitboards
@@ -64,4 +64,34 @@ struct Board {
     Square en_passant[NUM_PLAYERS]; // Multiple players can en passant in one full turn
     Square king_sq[NUM_PLAYERS];
     bool castling_rights[NUM_PLAYERS][2];
+
+    Board() {
+        for (int p = 0; p < NUM_PLAYERS; p++)
+            for (int pt = 0; pt < NUM_PIECE_TYPES; pt++)
+                pieces[p][pt] = Bitboard{};
+        
+        for (int sq = 0; sq < 256; sq++) {
+            mailbox[sq] = Piece::NO_PIECE;
+            owner[sq] = Player::NO_PLAYER;
+        }
+
+        occupied = Bitboard{};
+        for (int p = 0; p < NUM_PLAYERS; p++)
+            occupied_by[p] = Bitboard{};
+
+        for (int p = 0; p < NUM_PLAYERS; p++) {
+            state[p]           = PlayerState::ALIVE;
+            points[p]          = 0;
+            en_passant[p]      = Square::NO_SQUARE;
+            king_sq[p]         = Square::NO_SQUARE;
+            castling_rights[p][0] = true;
+            castling_rights[p][1] = true;
+        }
+
+        turn             = Player::RED;
+        ply_count        = 0;
+        full_move_count  = 1;
+    }
 };
+
+Board init_board();
