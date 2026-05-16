@@ -27,22 +27,20 @@ struct Bitboard {
     // ————————————————————————————————————————————————————————————————
 
     // Individual Bits ————————————————————————————————————————————————
-    void set_bit(int bit) { w[bit >> 6] |= (uint64_t(1) << (bit & 63)); }
-    void clear_bit(int bit) { w[bit >> 6] &= ~(uint64_t(1) << (bit & 63)); }
-    bool test_bit(int bit) const { return (w[bit >> 6] >> (bit & 63)) & 1; }
+    constexpr void set_bit(int bit) { w[bit >> 6] |= (uint64_t(1) << (bit & 63)); }
+    constexpr void clear_bit(int bit) { w[bit >> 6] &= ~(uint64_t(1) << (bit & 63)); }
+    constexpr bool test_bit(int bit) const { return (w[bit >> 6] >> (bit & 63)) & 1; }
 
     // Files and Ranks ————————————————————————————————————————————————
-    void set_bit(int file, int rank) { set_bit(file + rank * 16); }
-
-    void clear_bit(int file, int rank) { clear_bit(file + rank * 16); }
-
-    bool test_bit(int file, int rank) const { return test_bit(file + rank * 16); }
+    constexpr void set_bit(int file, int rank) { set_bit(file + rank * 16); }
+    constexpr void clear_bit(int file, int rank) { clear_bit(file + rank * 16); }
+    constexpr bool test_bit(int file, int rank) const { return test_bit(file + rank * 16); }
 
     // ————————————————————————————————————————————————————————————————
     // Bitwise Operators
     // ————————————————————————————————————————————————————————————————
 
-    Bitboard& operator&=(const Bitboard& rhs) {
+    constexpr Bitboard& operator&=(const Bitboard& rhs) {
         w[0] &= rhs.w[0];
         w[1] &= rhs.w[1];
         w[2] &= rhs.w[2];
@@ -50,7 +48,7 @@ struct Bitboard {
         return *this;
     }
 
-    Bitboard& operator|=(const Bitboard& rhs) {
+    constexpr Bitboard& operator|=(const Bitboard& rhs) {
         w[0] |= rhs.w[0];
         w[1] |= rhs.w[1];
         w[2] |= rhs.w[2];
@@ -58,7 +56,7 @@ struct Bitboard {
         return *this;
     }
 
-    Bitboard& operator^=(const Bitboard& rhs) {
+    constexpr Bitboard& operator^=(const Bitboard& rhs) {
         w[0] ^= rhs.w[0];
         w[1] ^= rhs.w[1];
         w[2] ^= rhs.w[2];
@@ -66,19 +64,19 @@ struct Bitboard {
         return *this;
     }
 
-    Bitboard operator~() const { return {~w[0], ~w[1], ~w[2], ~w[3]}; }
+    constexpr Bitboard operator~() const { return {~w[0], ~w[1], ~w[2], ~w[3]}; }
 
-    friend Bitboard operator&(Bitboard lhs, const Bitboard& rhs) {
+    constexpr friend Bitboard operator&(Bitboard lhs, const Bitboard& rhs) {
         lhs &= rhs;
         return lhs;
     }
 
-    friend Bitboard operator|(Bitboard lhs, const Bitboard& rhs) {
+    constexpr friend Bitboard operator|(Bitboard lhs, const Bitboard& rhs) {
         lhs |= rhs;
         return lhs;
     }
 
-    friend Bitboard operator^(Bitboard lhs, const Bitboard& rhs) {
+    constexpr friend Bitboard operator^(Bitboard lhs, const Bitboard& rhs) {
         lhs ^= rhs;
         return lhs;
     }
@@ -87,7 +85,7 @@ struct Bitboard {
     // Bit Shifts
     // ————————————————————————————————————————————————————————————————
 
-    friend Bitboard operator<<(Bitboard lhs, int n) {
+    constexpr friend Bitboard operator<<(Bitboard lhs, int n) {
         if (n == 0) return lhs;
         if (n >= 256) return Bitboard{};
  
@@ -108,7 +106,7 @@ struct Bitboard {
         return result;
     }
 
-    friend Bitboard operator>>(Bitboard lhs, int n) {
+    constexpr friend Bitboard operator>>(Bitboard lhs, int n) {
         if (n == 0) return lhs;
         if (n >= 256) return Bitboard{};
  
@@ -129,14 +127,14 @@ struct Bitboard {
         return result;
     }
 
-    Bitboard& operator<<=(int n) { *this = *this << n; return *this; }
-    Bitboard& operator>>=(int n) { *this = *this >> n; return *this; }
+    constexpr Bitboard& operator<<=(int n) { *this = *this << n; return *this; }
+    constexpr Bitboard& operator>>=(int n) { *this = *this >> n; return *this; }
 
     // ————————————————————————————————————————————————————————————————
     // Movement Shifts
     // ————————————————————————————————————————————————————————————————
     
-    Bitboard shift_north() const {
+    constexpr Bitboard shift_north() const {
         return {
             w[0] << 16,
             (w[1] << 16) | (w[0] >> 48),
@@ -145,7 +143,7 @@ struct Bitboard {
         };
     }
 
-    Bitboard shift_south() const {
+    constexpr Bitboard shift_south() const {
         return {
             (w[0] >> 16) | (w[1] << 48),
             (w[1] >> 16) | (w[2] << 48),
@@ -154,7 +152,7 @@ struct Bitboard {
         };
     }
 
-    Bitboard shift_east() const {
+    constexpr Bitboard shift_east() const {
         return {
              w[0] << 1,
             (w[1] << 1) | (w[0] >> 63),
@@ -163,7 +161,7 @@ struct Bitboard {
         };
     }
 
-    Bitboard shift_west() const {
+    constexpr Bitboard shift_west() const {
         return {
             (w[0] >> 1) | (w[1] << 63),
             (w[1] >> 1) | (w[2] << 63),
@@ -172,29 +170,29 @@ struct Bitboard {
         };
     }
 
-    Bitboard shift_northeast() const { return shift_north().shift_east(); }
-    Bitboard shift_northwest() const { return shift_north().shift_west(); }
-    Bitboard shift_southeast() const { return shift_south().shift_east(); }
-    Bitboard shift_southwest() const { return shift_south().shift_west(); }
+    constexpr Bitboard shift_northeast() const { return shift_north().shift_east(); }
+    constexpr Bitboard shift_northwest() const { return shift_north().shift_west(); }
+    constexpr Bitboard shift_southeast() const { return shift_south().shift_east(); }
+    constexpr Bitboard shift_southwest() const { return shift_south().shift_west(); }
 
     // ————————————————————————————————————————————————————————————————
     // Comparisons
     // ————————————————————————————————————————————————————————————————
 
-    bool operator==(const Bitboard& rhs) const {
+    constexpr bool operator==(const Bitboard& rhs) const {
         return w[0] == rhs.w[0]
             && w[1] == rhs.w[1]
             && w[2] == rhs.w[2]
             && w[3] == rhs.w[3];
     }
 
-    bool operator!=(const Bitboard& rhs) const { return !(*this == rhs); }
+    constexpr bool operator!=(const Bitboard& rhs) const { return !(*this == rhs); }
  
-    bool operator!() const {
+    constexpr bool operator!() const {
         return !(w[0] | w[1] | w[2] | w[3]);
     }
  
-    explicit operator bool() const {
+    constexpr explicit operator bool() const {
         return w[0] | w[1] | w[2] | w[3];
     }
 
