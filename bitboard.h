@@ -14,13 +14,13 @@ struct Bitboard {
     // ————————————————————————————————————————————————————————————————
     
     // Default ————————————————————————————————————————————————————————
-    Bitboard() : w{0, 0, 0, 0} {}
+    constexpr Bitboard() : w{0, 0, 0, 0} {}
 
     // Parametrized ———————————————————————————————————————————————————
-    Bitboard(uint64_t w0, uint64_t w1, uint64_t w2, uint64_t w3) : w{w0, w1, w2, w3} {}
+    constexpr Bitboard(uint64_t w0, uint64_t w1, uint64_t w2, uint64_t w3) : w{w0, w1, w2, w3} {}
 
     // Small val to 256-bit int ———————————————————————————————————————
-    explicit Bitboard(uint64_t val) : w{val, 0, 0, 0} {}
+    constexpr explicit Bitboard(uint64_t val) : w{val, 0, 0, 0} {}
 
     // ————————————————————————————————————————————————————————————————
     // Single-bit Operations
