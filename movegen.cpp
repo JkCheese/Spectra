@@ -274,10 +274,189 @@ void generate_king_moves(const Board& board, MoveList& list, Player player) {
     }
 }
 
+static Bitboard ray_north(Bitboard sq, Bitboard occupied) {
+    Bitboard attacks{};
+    Bitboard ray = sq.shift_north();
+    while (ray && !(ray & occupied)) {
+        attacks |= ray;
+        ray = ray.shift_north();
+    }
+    attacks |= ray; // include blocker
+    return attacks;
+}
+
+static Bitboard ray_south(Bitboard sq, Bitboard occupied) {
+    Bitboard attacks{};
+    Bitboard ray = sq.shift_south();
+    while (ray && !(ray & occupied)) {
+        attacks |= ray;
+        ray = ray.shift_south();
+    }
+    attacks |= ray;
+    return attacks;
+}
+
+static Bitboard ray_east(Bitboard sq, Bitboard occupied) {
+    Bitboard attacks{};
+    Bitboard ray = sq.shift_east() & ~FILE_P;
+    while (ray && !(ray & occupied)) {
+        attacks |= ray;
+        ray = ray.shift_east() & ~FILE_P;
+    }
+    attacks |= ray;
+    return attacks;
+}
+
+static Bitboard ray_west(Bitboard sq, Bitboard occupied) {
+    Bitboard attacks{};
+    Bitboard ray = sq.shift_west() & ~FILE_A;
+    while (ray && !(ray & occupied)) {
+        attacks |= ray;
+        ray = ray.shift_west() & ~FILE_A;
+    }
+    attacks |= ray;
+    return attacks;
+}
+
+static Bitboard ray_northeast(Bitboard sq, Bitboard occupied) {
+    Bitboard attacks{};
+    Bitboard ray = sq.shift_northeast() & ~FILE_P;
+    while (ray && !(ray & occupied)) {
+        attacks |= ray;
+        ray = ray.shift_northeast() & ~FILE_P;
+    }
+    attacks |= ray;
+    return attacks;
+}
+
+static Bitboard ray_northwest(Bitboard sq, Bitboard occupied) {
+    Bitboard attacks{};
+    Bitboard ray = sq.shift_northwest() & ~FILE_A;
+    while (ray && !(ray & occupied)) {
+        attacks |= ray;
+        ray = ray.shift_northwest() & ~FILE_A;
+    }
+    attacks |= ray;
+    return attacks;
+}
+
+static Bitboard ray_southeast(Bitboard sq, Bitboard occupied) {
+    Bitboard attacks{};
+    Bitboard ray = sq.shift_southeast() & ~FILE_P;
+    while (ray && !(ray & occupied)) {
+        attacks |= ray;
+        ray = ray.shift_southeast() & ~FILE_P;
+    }
+    attacks |= ray;
+    return attacks;
+}
+
+static Bitboard ray_southwest(Bitboard sq, Bitboard occupied) {
+    Bitboard attacks{};
+    Bitboard ray = sq.shift_southwest() & ~FILE_A;
+    while (ray && !(ray & occupied)) {
+        attacks |= ray;
+        ray = ray.shift_southwest() & ~FILE_A;
+    }
+    attacks |= ray;
+    return attacks;
+}
+
+static Bitboard rook_attacks(Bitboard sq, Bitboard occupied) {
+    return ray_north(sq, occupied)
+         | ray_south(sq, occupied)
+         | ray_east(sq, occupied)
+         | ray_west(sq, occupied);
+}
+
+static Bitboard bishop_attacks(Bitboard sq, Bitboard occupied) {
+    return ray_northeast(sq, occupied)
+         | ray_northwest(sq, occupied)
+         | ray_southeast(sq, occupied)
+         | ray_southwest(sq, occupied);
+}
+
+static Bitboard queen_attacks(Bitboard sq, Bitboard occupied) {
+    return rook_attacks(sq, occupied) | bishop_attacks(sq, occupied);
+}
+
+static void add_sliding_moves(
+    int from,
+    Bitboard attacks,
+    Piece piece_type,
+    const Board& board,
+    MoveList& list
+) {
+    while (attacks) {
+        int to = attacks.pop_lsb();
+        Piece captured = board.mailbox[to];
+        MoveFlag flag = (captured != Piece::NO_PIECE)
+                      ? MoveFlag::CAPTURE
+                      : MoveFlag::QUIET;
+        list.add(Move(Square(from), Square(to), flag, captured));
+    }
+}
+
+void generate_rook_moves(const Board& board, MoveList& list, Player player) {
+    if (board.state[int(player)] == PlayerState::DEAD) return;
+
+    Bitboard rooks = board.pieces[int(player)][int(Piece::ROOK)];
+    Bitboard own = board.occupied_by[int(player)];
+    Bitboard occupied = board.occupied;
+
+    while (rooks) {
+        int from = rooks.pop_lsb();
+
+        Bitboard sq{};
+        sq.set_bit(from);
+
+        Bitboard attacks = rook_attacks(sq, occupied) & ~own & VALID_SQUARES;
+        add_sliding_moves(from, attacks, Piece::ROOK, board, list);
+    }
+}
+
+void generate_bishop_moves(const Board& board, MoveList& list, Player player) {
+    if (board.state[int(player)] == PlayerState::DEAD) return;
+
+    Bitboard bishops = board.pieces[int(player)][int(Piece::BISHOP)];
+    Bitboard own = board.occupied_by[int(player)];
+    Bitboard occupied = board.occupied;
+
+    while (bishops) {
+        int from = bishops.pop_lsb();
+
+        Bitboard sq{};
+        sq.set_bit(from);
+
+        Bitboard attacks = bishop_attacks(sq, occupied) & ~own & VALID_SQUARES;
+        add_sliding_moves(from, attacks, Piece::BISHOP, board, list);
+    }
+}
+
+void generate_queen_moves(const Board& board, MoveList& list, Player player) {
+    if (board.state[int(player)] == PlayerState::DEAD) return;
+
+    Bitboard queens = board.pieces[int(player)][int(Piece::QUEEN)];
+    Bitboard own = board.occupied_by[int(player)];
+    Bitboard occupied = board.occupied;
+
+    while (queens) {
+        int from = queens.pop_lsb();
+
+        Bitboard sq{};
+        sq.set_bit(from);
+
+        Bitboard attacks = queen_attacks(sq, occupied) & ~own & VALID_SQUARES;
+        add_sliding_moves(from, attacks, Piece::QUEEN, board, list);
+    }
+}
+
 void generate_pseudo_legal_moves(const Board& board, MoveList& list, Player player) {
     list.clear();
     generate_pawn_moves(board, list, player);
     generate_knight_moves(board, list, player);
+    generate_bishop_moves(board, list, player);
+    generate_rook_moves(board, list, player);
+    generate_queen_moves(board, list, player);
     generate_king_moves(board, list, player);
-    // sliding pieces come later
 }

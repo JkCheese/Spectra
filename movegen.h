@@ -60,3 +60,8 @@ constexpr auto KING_ATTACKS = compute_king_attacks();
 
 void generate_knight_moves(const Board& board, MoveList& list, Player player);
 void generate_king_moves(const Board& board, MoveList& list, Player player);
+void generate_rook_moves  (const Board& board, MoveList& list, Player player);
+void generate_bishop_moves(const Board& board, MoveList& list, Player player);
+void generate_queen_moves (const Board& board, MoveList& list, Player player);
+
+void generate_pseudo_legal_moves(const Board& board, MoveList& list, Player player);
