@@ -40,6 +40,8 @@ enum class Castling : uint8_t {
     NONE, KINGSIDE, QUEENSIDE
 };
 
+constexpr uint16_t BOARD_SIZE = 256;
+
 // File masks
 constexpr Bitboard FILE_A = Bitboard(0x0001000100010001ULL, 0x0001000100010001ULL, 0x0001000100010001ULL, 0x0001000100010001ULL);
 constexpr Bitboard FILE_B = Bitboard(0x0002000200020002ULL, 0x0002000200020002ULL, 0x0002000200020002ULL, 0x0002000200020002ULL);
@@ -59,7 +61,6 @@ constexpr Bitboard FILE_O = Bitboard(0x4000400040004000ULL, 0x4000400040004000UL
 constexpr Bitboard FILE_P = Bitboard(0x8000800080008000ULL, 0x8000800080008000ULL, 0x8000800080008000ULL, 0x8000800080008000ULL);
 
 // Rank masks
-
 constexpr Bitboard RANK_1 = Bitboard(0x000000000000FFFFULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL);
 constexpr Bitboard RANK_2 = Bitboard(0x00000000FFFF0000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL);
 constexpr Bitboard RANK_3 = Bitboard(0x0000FFFF00000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL);
@@ -77,12 +78,12 @@ constexpr Bitboard RANK_14 = Bitboard(0x0000000000000000ULL, 0x0000000000000000U
 constexpr Bitboard RANK_15 = Bitboard(0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000FFFF00000000ULL);
 constexpr Bitboard RANK_16 = Bitboard(0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0xFFFF000000000000ULL);
 
-// =============================================================================
+// ————————————————————————————————————————————————————————————————
 // Valid squares — the 160 squares that exist on the 4PC board
 // Full 14x14 inner area minus the four 3x3 corner cutouts
 // Outer border (rank/file 1 and 16) is always brick
 // Corners removed: B2-D4, M2-O4, B13-D15, M13-O15
-// =============================================================================
+// ————————————————————————————————————————————————————————————————
 
 constexpr Bitboard VALID_SQUARES =
     // all inner squares (files B-O, ranks 2-15)
@@ -92,8 +93,8 @@ constexpr Bitboard VALID_SQUARES =
     // minus northeast corner (files M-O, ranks 13-15)
     Bitboard(
         0x0FF00FF00FF00000ULL, // ranks 1-4:  only ranks 2-4 valid, files E-L only after corner removal — word 0
-        0x7FFE7FFE7FFEFFFEULL, // ranks 5-8:  fully valid files B-O
-        0x7FFE7FFE7FFEFFFEULL, // ranks 9-12: fully valid files B-O
+        0x7FFE7FFE7FFE7FFEULL, // ranks 5-8:  fully valid files B-O
+        0x7FFE7FFE7FFE7FFEULL, // ranks 9-12: fully valid files B-O
         0x00000FF00FF00FF0ULL  // ranks 13-16: only ranks 13-15 valid, files E-L only after corner removal — word 3
     );
 

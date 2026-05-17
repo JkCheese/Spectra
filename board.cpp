@@ -53,8 +53,8 @@ Board init_board() {
     place(Player::YELLOW, Piece::ROOK,   Square::L15);
     place(Player::YELLOW, Piece::KNIGHT, Square::K15);
     place(Player::YELLOW, Piece::BISHOP, Square::J15);
-    place(Player::YELLOW, Piece::KING,   Square::I15);
-    place(Player::YELLOW, Piece::QUEEN,  Square::H15);
+    place(Player::YELLOW, Piece::QUEEN,  Square::I15);
+    place(Player::YELLOW, Piece::KING,   Square::H15);
     place(Player::YELLOW, Piece::BISHOP, Square::G15);
     place(Player::YELLOW, Piece::KNIGHT, Square::F15);
     place(Player::YELLOW, Piece::ROOK,   Square::E15);
